@@ -1,26 +1,51 @@
+# Android CI: build debug APK using the project's gradle wrapper
+# Triggers on push and pull_request
 name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
-
+    name: Build (assembleDebug)
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: set up JDK 11
-      uses: actions/setup-java@v4
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Cache Gradle directories
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up Android SDK (API 33)
+        uses: r0adkll/setup-android@v2
+        with:
+          api-level: 33
+          build-tools: 33.0.2
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apks
+          path: app/build/outputs/**/*.apk
