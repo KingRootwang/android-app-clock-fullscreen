@@ -33,7 +33,6 @@ jobs:
         run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
 
       - name: Set Up JDK
-      - name: Set Up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'   # temurin is a commonly used OpenJDK distribution
