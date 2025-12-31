@@ -33,11 +33,17 @@ jobs:
         run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
 
       - name: Set Up JDK
+      - name: Set Up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
-          java-version: '17'
+          distribution: 'temurin'   # temurin is a commonly used OpenJDK distribution
+          java-version: '11'       # <-- use Java 11 so older Gradle/Groovy won't fail
           cache: 'gradle'
+
+      - name: Show java & gradle versions (debug)
+        run: |
+          java -version
+          ./gradlew --version
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
